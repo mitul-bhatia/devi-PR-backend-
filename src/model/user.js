@@ -31,6 +31,11 @@ const userSchema = new Schema({
     },
     password : String,
     age  : Number,
+    skills : [String],
+    about : String,
+    idea : String,
+    ideaDomain : String,
+    
     gender : {
        type : String,
        validate: {
@@ -59,7 +64,7 @@ userSchema.methods.getJWT= async function(){
 }
 
 userSchema.methods.validatePassword = async function(passwordbyuser){
-    const user = this 
+    const user = this ;
 
     const passwordHash= user.password
 

@@ -3,7 +3,7 @@ const {UserM}= require("../model/user")
 
 
   
-const userAuthFunction = async (req, res, next) => {
+const userAuth = async (req, res, next) => {
   try{
   const {token} = req.cookies
     if (!token){
@@ -22,6 +22,8 @@ const userAuthFunction = async (req, res, next) => {
     if (!user){
       throw new Error("User not found")
     }
+
+    req.user=user
     next()
 
   }
@@ -32,5 +34,5 @@ const userAuthFunction = async (req, res, next) => {
 }
 module.exports={
 
-    userAuthFunction
+    userAuth
 }

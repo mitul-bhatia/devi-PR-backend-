@@ -13,135 +13,147 @@ app.use(cookieParser());
 const jwt = require('jsonwebtoken');
 
 
-app.post("/login", async (req, res) => {
-  const { emailID, password } = req.body;
-  console.log("Incoming login body:", req.body);
+const { authrouter } = require("./routes/auth");
+const { profileRouter } = require("./routes/profile");
+const { requestRouter } = require("./routes/request");  
+
+app.use("/", authrouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
 
 
 
-  if (!emailID || !password) {
-    return res.status(400).json({ error: "Email and Password are required" });
-  }
-
-  const user = await UserM.findOne({ emailID });
-  console.log("User fetched from DB:", user);
 
 
-
-  if (!user) {
-    return res.status(400).json({ error: "User not found" });
-  }
+// app.post("/login", async (req, res) => {
+//   const { emailID, password } = req.body;
+//   console.log("Incoming login body:", req.body);
 
 
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  // console.log("Compare:", password, "vs", user.password, "=>", isPasswordValid);
-
-  if (!isPasswordValid) {
-    return res.status(400).json({ error: "Invalid password" });
-  }
-
-  // creating a JWT TOKEN here
-  const token = await jwt.sign({_id: user._id },"marnekebaadbhi")
-  res.cookie("token", token, {     
-    expires: new Date(Date.now() + 24 * 60 * 60 * 1000) // 1 day
-  });
-  res.status(200).json({
-    user,
-    message: "Login successful"
-  });
-});
-// app.post("/login",async (req,res) => {
-//   const {emailID, password}= req.body
-
-//   if (!emailID || !password){
-
-//     return res.status(400).json({error : "Email and Password are required"})
+//   if (!emailID || !password) {
+//     return res.status(400).json({ error: "Email and Password are required" });
 //   }
 
-//   const user = await UserM.findOne({emailID})
+//   const user = await UserM.findOne({ emailID });
+//   console.log("User fetched from DB:", user);
 
-//   if (!user){
-//     return res.status(400).json({error : "User not found"})
+
+
+//   if (!user) {
+//     return res.status(400).json({ error: "User not found" });
 //   }
 
-//   const isPasswordValid = await bcrypt.compare(password,user.password)
-  
-  
-//     if (!isPasswordValid){
-  
-//       return res.status(400).json({error : "Invalid password"})
-  
-//     }
-  
+
+
+//   const isPasswordValid = await bcrypt.compare(password, user.password);
+//   // console.log("Compare:", password, "vs", user.password, "=>", isPasswordValid);
+
+//   if (!isPasswordValid) {
+//     return res.status(400).json({ error: "Invalid password" });
+//   }
+
+//   // creating a JWT TOKEN here
+//   const token = await jwt.sign({_id: user._id },"marnekebaadbhi")
+//   res.cookie("token", token, {     
+//     expires: new Date(Date.now() + 24 * 60 * 60 * 1000) // 1 day
+//   });
 //   res.status(200).json({
 //     user,
 //     message: "Login successful"
+//   });
+// });
+// // app.post("/login",async (req,res) => {
+// //   const {emailID, password}= req.body
+
+// //   if (!emailID || !password){
+
+// //     return res.status(400).json({error : "Email and Password are required"})
+// //   }
+
+// //   const user = await UserM.findOne({emailID})
+
+// //   if (!user){
+// //     return res.status(400).json({error : "User not found"})
+// //   }
+
+// //   const isPasswordValid = await bcrypt.compare(password,user.password)
+  
+  
+// //     if (!isPasswordValid){
+  
+// //       return res.status(400).json({error : "Invalid password"})
+  
+// //     }
+  
+// //   res.status(200).json({
+// //     user,
+// //     message: "Login successful"
+// // })
+
+
+
+
+// // })
+// app.post("/signup", async (req, res) => {
+//   try {
+//     validatesignupdata(req);
+
+
+
+//     const { firstName, LastName, emailID, password } = req.body;
+//     const passwordHash = await bcrypt.hash(password, 10);
+//     const user = new UserM({
+//       firstName,
+//       LastName,
+//       emailID,
+//       password: passwordHash,
+//     });
+//     await user.save();
+
+//     res.status(201).json(user);
+//   } catch (err) {
+//     res.status(400).json({ error: err.message });
+//   }
+// });
+
+
+
+// app.get("/profile", async (req, res) => {
+//   try{
+//   const cookie = req.cookies
+//   const {token} = cookie
+// if (!token){
+//   return res.status(401).json({error : "No token present"})
+// }
+//   const istokenvalid = await jwt.verify(token,"marnekebaadbhi")
+//   console.log(istokenvalid)
+//   const {_id} = istokenvalid
+//   console.log(_id)
+//   console.log(cookie)
+//   const user = await UserM.findById(_id)
+
+//   res.json(user);
+//   }
+//   catch(err){
+//     res.status(401).json({error : err.message})
+//   }
 // })
 
 
+// app.post("/",async(req,res) =>{
+//     try{
+//     let d = req.body;
+//     validatesignupdata(req);
 
+//     const user = new UserM(d);
 
-// })
-app.post("/signup", async (req, res) => {
-  try {
-    validatesignupdata(req);
-
-
-
-    const { firstName, LastName, emailID, password } = req.body;
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = new UserM({
-      firstName,
-      LastName,
-      emailID,
-      password: passwordHash,
-    });
-    await user.save();
-
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-
-
-app.get("/profile", async (req, res) => {
-  try{
-  const cookie = req.cookies
-  const {token} = cookie
-if (!token){
-  return res.status(401).json({error : "No token present"})
-}
-  const istokenvalid = await jwt.verify(token,"marnekebaadbhi")
-  console.log(istokenvalid)
-  const {_id} = istokenvalid
-  console.log(_id)
-  console.log(cookie)
-  const user = await UserM.findById(_id)
-
-  res.json(user);
-  }
-  catch(err){
-    res.status(401).json({error : err.message})
-  }
-})
-
-
-app.post("/",async(req,res) =>{
-    try{
-    let d = req.body;
-    validatesignupdata(req);
-
-    const user = new UserM(d);
-
-    await user.save();
-    res.json(d);
-}
-catch(err){
-  res.status(400).send()
-}})
+//     await user.save();
+//     res.json(d);
+// }
+// catch(err){
+//   res.status(400).send()
+// }})
 
     
 connectdb().then(() => {
